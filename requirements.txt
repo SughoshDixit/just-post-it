@@ -4,4 +4,6 @@ Pillow
 numpy
 rembg
 onnxruntime
+streamlit-lottie
+requests
 
