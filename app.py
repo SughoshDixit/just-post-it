@@ -25,6 +25,7 @@ with st.sidebar:
     target_ratio = st.selectbox(
         "Target Platform / Format",
         [
+            "Original",
             "Instagram Square (1:1)",
             "Instagram Portrait (4:5)",
             "Instagram Story / Reel (9:16)",

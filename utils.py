@@ -5,6 +5,7 @@ from rembg import remove
 
 # Aspect Ratio Dictionary
 ASPECT_RATIOS = {
+    "Original": 0, # Special flag
     "Instagram Square (1:1)": 1.0,
     "Instagram Portrait (4:5)": 4/5,
     "Instagram Story / Reel (9:16)": 9/16,
@@ -145,7 +146,10 @@ def resize_with_padding(image: Image.Image, target_ratio_name: str, logo: Image.
     ratio = ASPECT_RATIOS.get(target_ratio_name, 1.0)
         
     img_w, img_h = image.size
-    
+
+    if target_ratio_name == "Original":
+        ratio = img_w / img_h
+
     # Base Target Width (High Res)
     target_w = max(img_w, 2160) 
     
@@ -208,6 +212,9 @@ def create_carousel_slides(image: Image.Image, target_ratio_name: str, logo: Ima
     ratio = ASPECT_RATIOS.get(target_ratio_name, 1.0)
     
     img_w, img_h = image.size
+
+    if target_ratio_name == "Original":
+        ratio = img_w / img_h
     
     # 1. Determine Dimensions
     slide_width = max(img_w, 2160)
