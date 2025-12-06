@@ -14,6 +14,18 @@ st.set_page_config(
     }
 )
 
+# --- Open Graph Tags (Workaround for Streamlit Cloud) ---
+# Note: Streamlit Cloud usually handles this via settings, but we can try to inject it.
+st.markdown("""
+<head>
+    <meta property="og:title" content="Just Post It 🚀" />
+    <meta property="og:description" content="Convert your posts to 4K, change aspect ratios, and create viral carousels in seconds." />
+    <meta property="og:image" content="https://raw.githubusercontent.com/SughoshDixit/just-post-it/main/Posts/30-day.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+</head>
+""", unsafe_allow_html=True)
+
 # --- Custom CSS for UI Improvements ---
 st.markdown("""
 <style>
