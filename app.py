@@ -178,11 +178,20 @@ if uploaded_file is not None:
     
     with col2:
         st.subheader("Preview & Download")
+        
+        # Show original dimensions
+        st.caption(f"📐 Original: {image.width} × {image.height} pixels")
+        if upscale_factor > 1:
+            expected_w = image.width * upscale_factor
+            expected_h = image.height * upscale_factor
+            st.caption(f"🎯 After {upscale_factor}x upscale: ~{expected_w} × {expected_h} pixels")
+        
         if st.button("✨ Process Image", type="primary", use_container_width=True):
             with st.spinner("🎨 Magic in progress... Upscaling & Styling..."):
                 # 1. Upscale
                 if upscale_factor > 1:
                     processed_img = utils.upscale_image(image, factor=upscale_factor, content_type=content_type)
+                    st.info(f"✅ Upscaled to {processed_img.width} × {processed_img.height} pixels")
                 else:
                     processed_img = image
                 
@@ -225,6 +234,21 @@ if uploaded_file is not None:
                         card_mode=card_mode
                     )
                     st.success("Processing Complete!")
+                    
+                    # Show comparison if upscaled (compare upscaled version before formatting)
+                    if upscale_factor > 1:
+                        st.markdown("#### 📊 Upscaling Quality Comparison")
+                        st.markdown("*Compare the upscaled image quality below (before formatting)*")
+                        comp_col1, comp_col2 = st.columns(2)
+                        with comp_col1:
+                            st.caption(f"Original: {image.width}×{image.height}px")
+                            st.image(image, use_container_width=True)
+                        with comp_col2:
+                            st.caption(f"Upscaled ({upscale_factor}x): {processed_img.width}×{processed_img.height}px")
+                            st.image(processed_img, use_container_width=True)
+                        st.markdown("---")
+                        st.markdown("#### 🎨 Final Formatted Image")
+                    
                     st.image(final_img, caption="Final Image", use_container_width=True)
                     
                     buf = BytesIO()

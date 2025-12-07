@@ -51,7 +51,8 @@ def create_gradient(width, height, color1, color2):
 
 def upscale_image(image: Image.Image, factor: int = 2, content_type: str = "Text/Post") -> Image.Image:
     """
-    Upscale the image using different strategies based on content type.
+    Upscale the image using enhanced interpolation with adaptive sharpening.
+    Uses multi-stage upscaling for better quality at higher factors.
     """
     if factor <= 1:
         return image
@@ -60,27 +61,54 @@ def upscale_image(image: Image.Image, factor: int = 2, content_type: str = "Text
     new_width = width * factor
     new_height = height * factor
     
-    # High-quality resampling (Standard for both)
-    upscaled = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+    # Multi-stage upscaling for factors > 2 (better quality)
+    if factor > 2:
+        # Upscale in stages: e.g., 4x = 2x then 2x again
+        current_img = image
+        remaining_factor = factor
+        stage_factor = 2  # Upscale 2x at a time
+        
+        while remaining_factor > 1:
+            stage = min(stage_factor, remaining_factor)
+            temp_w = int(current_img.width * stage)
+            temp_h = int(current_img.height * stage)
+            
+            # Use LANCZOS for high-quality interpolation
+            current_img = current_img.resize((temp_w, temp_h), Image.Resampling.LANCZOS)
+            remaining_factor /= stage
+        
+        upscaled = current_img
+    else:
+        # Single stage for 2x or less
+        upscaled = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
     
-    if content_type == "Text/Post":
-        # For text, we want crisp edges.
+    if content_type == "Text / Screenshot / Poster":
+        # For text/screenshots: aggressive sharpening for crisp edges
         enhancer = ImageEnhance.Sharpness(upscaled)
-        sharpness = 1.5 if factor < 4 else 1.2 
+        sharpness = 1.6 if factor <= 2 else 1.3
         upscaled = enhancer.enhance(sharpness)
+        
+        # Additional edge enhancement using unsharp mask simulation
+        upscaled = ImageOps.autocontrast(upscaled, cutoff=1)
+        
     else: 
-        # "Natural Photo / Person"
-        # 1. Subtle Sharpening
+        # "Natural Photo / Person": Subtle, natural enhancements
+        # 1. Adaptive Sharpening (stronger for higher factors)
         enhancer = ImageEnhance.Sharpness(upscaled)
-        upscaled = enhancer.enhance(1.1) # Very mild sharpening
+        sharpness = 1.15 if factor <= 2 else 1.25
+        upscaled = enhancer.enhance(sharpness)
         
-        # 2. Contrast Enhancement (Pop)
+        # 2. Smarter Contrast Enhancement (adaptive)
         enhancer = ImageEnhance.Contrast(upscaled)
-        upscaled = enhancer.enhance(1.05)
+        upscaled = enhancer.enhance(1.08)
         
-        # 3. Color/Saturation Boost (Vibrance)
+        # 3. Color/Saturation Boost (vibrance - not too much)
         enhancer = ImageEnhance.Color(upscaled)
-        upscaled = enhancer.enhance(1.1)
+        upscaled = enhancer.enhance(1.12)
+        
+        # 4. Subtle brightness adjustment for better exposure
+        enhancer = ImageEnhance.Brightness(upscaled)
+        upscaled = enhancer.enhance(1.02)
 
     return upscaled
 
