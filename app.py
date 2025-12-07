@@ -225,20 +225,27 @@ if uploaded_file is not None:
                         
                 else:
                     # Single Image Mode
-                    final_img = utils.resize_with_padding(
-                        processed_img, 
-                        target_ratio, 
-                        logo=logo_img,
-                        bg_type=bg_type,
-                        custom_color=bg_color,
-                        card_mode=card_mode
-                    )
+                    # If Original format with no styling, use upscaled image directly
+                    needs_formatting = (target_ratio != "Original" or logo_img or bg_type != "Blur" or card_mode)
+                    
+                    if not needs_formatting and upscale_factor > 1:
+                        # Just return the upscaled image directly, no formatting needed
+                        final_img = processed_img
+                    else:
+                        final_img = utils.resize_with_padding(
+                            processed_img, 
+                            target_ratio, 
+                            logo=logo_img,
+                            bg_type=bg_type,
+                            custom_color=bg_color,
+                            card_mode=card_mode
+                        )
+                    
                     st.success("Processing Complete!")
                     
-                    # Show comparison if upscaled (compare upscaled version before formatting)
+                    # Show comparison if upscaled
                     if upscale_factor > 1:
                         st.markdown("#### 📊 Upscaling Quality Comparison")
-                        st.markdown("*Compare the upscaled image quality below (before formatting)*")
                         comp_col1, comp_col2 = st.columns(2)
                         with comp_col1:
                             st.caption(f"Original: {image.width}×{image.height}px")
@@ -247,9 +254,9 @@ if uploaded_file is not None:
                             st.caption(f"Upscaled ({upscale_factor}x): {processed_img.width}×{processed_img.height}px")
                             st.image(processed_img, use_container_width=True)
                         st.markdown("---")
-                        st.markdown("#### 🎨 Final Formatted Image")
                     
-                    st.image(final_img, caption="Final Image", use_container_width=True)
+                    st.markdown("#### 🎨 Final Processed Image")
+                    st.image(final_img, caption=f"Final Image ({final_img.width}×{final_img.height}px)", use_container_width=True)
                     
                     buf = BytesIO()
                     final_img.save(buf, format="PNG")

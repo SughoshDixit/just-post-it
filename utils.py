@@ -177,28 +177,44 @@ def resize_with_padding(image: Image.Image, target_ratio_name: str, logo: Image.
 
     if target_ratio_name == "Original":
         ratio = img_w / img_h
-
-    # Base Target Width (High Res)
-    target_w = max(img_w, 2160) 
-    
-    if ratio < 1: # Vertical
-        target_h = int(target_w / ratio)
-    else: # Horizontal
-        target_h = int(target_w / ratio)
+        # For "Original", preserve the image dimensions exactly (don't force minimum 2160)
+        target_w = img_w
+        target_h = img_h
+    else:
+        # Base Target Width (High Res) for other formats
+        target_w = max(img_w, 2160) 
         
+        if ratio < 1: # Vertical
+            target_h = int(target_w / ratio)
+        else: # Horizontal
+            target_h = int(target_w / ratio)
+    
+    # If Original and no logo/bg changes needed, return image directly
+    if target_ratio_name == "Original" and not logo and bg_type == "Blur" and not card_mode:
+        return image
+    
     # Create background
     bg = get_background(image, target_w, target_h, bg_type, custom_color)
 
     # Prepare Foreground
     scale_factor = 0.80 if card_mode else 1.0 
     
-    scale_w = target_w / img_w
-    scale_h = target_h / img_h
-    scale = min(scale_w, scale_h) * scale_factor
+    # For Original, use the image at full size (no scaling needed)
+    if target_ratio_name == "Original":
+        new_fg_w = int(img_w * scale_factor)
+        new_fg_h = int(img_h * scale_factor)
+    else:
+        scale_w = target_w / img_w
+        scale_h = target_h / img_h
+        scale = min(scale_w, scale_h) * scale_factor
+        new_fg_w = int(img_w * scale)
+        new_fg_h = int(img_h * scale)
     
-    new_fg_w = int(img_w * scale)
-    new_fg_h = int(img_h * scale)
-    fg = image.resize((new_fg_w, new_fg_h), Image.Resampling.LANCZOS)
+    # Only resize if dimensions changed
+    if new_fg_w != img_w or new_fg_h != img_h:
+        fg = image.resize((new_fg_w, new_fg_h), Image.Resampling.LANCZOS)
+    else:
+        fg = image
     
     if card_mode:
         radius = int(min(target_w, target_h) * 0.03) 
