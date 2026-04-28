@@ -1,25 +1,30 @@
-# Just Post It 🚀
+# just-post-it
 
-A social media repurposing tool that converts screenshots and posts into high-quality, organizational-style carousels.
+## Overview
+just-post-it is a **Python** project. This repository contains the source code, documentation, and any related assets for the project.
 
-## Features
-- **4K Upscaling:** High-quality image resizing with sharpening.
-- **Smart Aspect Ratio:** Converts images to 1:1, 4:5, or 16:9 without cropping text (uses blurred background padding).
-- **Carousel Generator:** Automatically splits long screenshots (e.g., Twitter threads) into seamless carousel slides.
-- **Branding:** Overlay your organization's logo on every slide.
+## Intent
+The intention behind this project is to provide a reference implementation, demonstrate just-post-it’s functionality, and serve as a learning or showcase resource.
+
+## Complexity
+Medium
 
 ## How to Run
-1. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Run the app:
-   ```bash
-   streamlit run app.py
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/SughoshDixit/just-post-it.git
 
-## Tech Stack
-- **Python**
-- **Streamlit** (UI)
-- **Pillow (PIL)** & **OpenCV** (Image Processing)
+cd just-post-it
 
+# (optional) create a virtual environment
+python -m venv venv
+
+# Activate and install dependencies
+.\venv\Scripts\activate
+pip install -r requirements.txt
+
+# Run the script
+python app.py
+```
+
+*(If the project uses a different build tool, replace the commands above with the appropriate instructions.)*
